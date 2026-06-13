@@ -208,6 +208,16 @@ ${articleStructure}
 - Never sound like a textbook
 - Every paragraph makes the reader want to read the next one
 
+## FEATURED IMAGE PROMPT
+
+You must ALSO generate a detailed image_prompt that can be fed into DALL-E or Midjourney. This prompt should describe a compelling, photorealistic image that represents the article. Follow these rules:
+- Describe the SUBJECT, SETTING, MOOD, and STYLE
+- Include lighting, colors, and composition details
+- Keep it between 30-80 words
+- Do NOT include text, letters, or words in the image
+- Should be usable as a featured hero image for the article
+- Match the tone: serious for news, exciting for sports, warm for everyday life
+
 ## OUTPUT FORMAT (JSON only, no markdown fences)
 
 {
@@ -216,7 +226,7 @@ ${articleStructure}
   "content": "full article in markdown following the structure above",
   "seo_description": "SEO description (max 155 chars)",
   "tags": ["tag1", "tag2", "tag3", "tag4"],
-  "image_prompt": "detailed prompt for a featured image"
+  "image_prompt": "describe the featured image here — DALL-E/Midjourney ready prompt, 30-80 words, no text in image"
 }`
 
     // Call OpenRouter API

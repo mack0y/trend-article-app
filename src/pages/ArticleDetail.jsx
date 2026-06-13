@@ -37,6 +37,13 @@ export default function ArticleDetail() {
 
   return (
     <article className="article-page">
+      {/* Featured image hero */}
+      {article.image_url && (
+        <div className="article-hero">
+          <img src={article.image_url} alt={article.title} />
+        </div>
+      )}
+
       <header className="article-header">
         <p className="eyebrow">{article.trends?.category || 'Article'}</p>
         <h1>{article.title}</h1>
@@ -48,10 +55,9 @@ export default function ArticleDetail() {
         </div>
       </header>
 
-      {article.image_prompt && (
+      {article.image_prompt && !article.image_url && (
         <section className="page-card prompt-card">
-          <h2>Image prompt</h2>
-          <p>{article.image_prompt}</p>
+          <p className="muted">Image prompt: {article.image_prompt}</p>
         </section>
       )}
 

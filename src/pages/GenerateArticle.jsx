@@ -19,6 +19,7 @@ export default function GenerateArticle() {
   const [article, setArticle] = useState(null)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
 
@@ -27,6 +28,7 @@ export default function GenerateArticle() {
     summary: '',
     content: '',
     image_prompt: '',
+    image_url: '',
     seo_description: '',
     tags: [],
   })
@@ -57,6 +59,7 @@ export default function GenerateArticle() {
           summary: data.summary || '',
           content: data.content || '',
           image_prompt: data.image_prompt || '',
+          image_url: data.image_url || '',
           seo_description: data.seo_description || '',
           tags: Array.isArray(data.tags) ? data.tags : [],
         })
@@ -82,6 +85,56 @@ export default function GenerateArticle() {
     setForm((current) => ({ ...current, tags }))
   }
 
+  async function uploadImage(event) {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    setError('')
+
+    try {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${trendId || 'article'}-${Date.now()}.${fileExt}`
+      const filePath = `${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('article-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+        })
+
+      if (uploadError) throw uploadError
+
+      const { data: urlData } = supabase.storage
+        .from('article-images')
+        .getPublicUrl(filePath)
+
+      setForm((current) => ({ ...current, image_url: urlData.publicUrl }))
+      setMessage('Image uploaded successfully.')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setUploading(false)
+    }
+
+    // Reset input so same file can be re-selected
+    event.target.value = ''
+  }
+
+  async function removeImage() {
+    if (!form.image_url) return
+
+    // Extract path from URL
+    const path = form.image_url.split('/').pop()
+    if (path) {
+      await supabase.storage.from('article-images').remove([path])
+    }
+
+    setForm((current) => ({ ...current, image_url: '' }))
+    setMessage('Image removed.')
+  }
+
   async function generateArticle() {
     if (!trendId) return
 
@@ -94,14 +147,15 @@ export default function GenerateArticle() {
       const generated = result.article || result
 
       setArticle(generated)
-      setForm({
+      setForm((current) => ({
         title: generated.title || '',
         summary: generated.summary || '',
         content: generated.content || '',
         image_prompt: generated.image_prompt || '',
+        image_url: current.image_url || generated.image_url || '',
         seo_description: generated.seo_description || '',
         tags: Array.isArray(generated.tags) ? generated.tags : [],
-      })
+      }))
 
       setMessage('Article generated. Review and edit before publishing.')
     } catch (err) {
@@ -125,6 +179,7 @@ export default function GenerateArticle() {
         summary: form.summary,
         content: form.content,
         image_prompt: form.image_prompt,
+        image_url: form.image_url,
         seo_description: form.seo_description,
         tags: form.tags,
         status: article?.id ? article.status || 'draft' : 'draft',
@@ -240,6 +295,51 @@ export default function GenerateArticle() {
           />
         </label>
 
+        {/* Featured image */}
+        <div className="image-section">
+          <label>Featured image</label>
+
+          {form.image_url ? (
+            <div className="image-preview">
+              <img src={form.image_url} alt="Article featured image" />
+              <button className="text-button" type="button" onClick={removeImage}>
+                Remove image
+              </button>
+            </div>
+          ) : (
+            <div className="image-upload-zone">
+              <label className="upload-button secondary-button" role="button">
+                {uploading ? 'Uploading...' : 'Upload image'}
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  onChange={uploadImage}
+                  disabled={uploading}
+                  hidden
+                />
+              </label>
+              <span className="muted">PNG, JPEG, WebP or GIF. Max 5MB.</span>
+            </div>
+          )}
+        </div>
+
+        {/* Image prompt */}
+        <label>
+          Image prompt (for DALL-E / Midjourney)
+          <textarea
+            value={form.image_prompt}
+            onChange={(event) => updateField('image_prompt', event.target.value)}
+            rows={4}
+          />
+        </label>
+
+        <div className="inline-actions">
+          <button className="secondary-button" type="button" onClick={copyPrompt} disabled={!form.image_prompt}>
+            Copy image prompt
+          </button>
+          <span className="muted">Use this prompt to generate a photo in DALL-E or Midjourney, then upload the result above.</span>
+        </div>
+
         <label>
           Content
           <textarea
@@ -249,22 +349,6 @@ export default function GenerateArticle() {
             className="markdown-editor"
           />
         </label>
-
-        <label>
-          Image prompt
-          <textarea
-            value={form.image_prompt}
-            onChange={(event) => updateField('image_prompt', event.target.value)}
-            rows={5}
-          />
-        </label>
-
-        <div className="inline-actions">
-          <button className="secondary-button" type="button" onClick={copyPrompt} disabled={!form.image_prompt}>
-            Copy image prompt
-          </button>
-          <span className="muted">Create the image outside the app using this prompt.</span>
-        </div>
 
         <label>
           SEO description
