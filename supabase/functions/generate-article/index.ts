@@ -62,74 +62,67 @@ serve(async (req) => {
       trend.impact_score >= 40 ? 'notable increase' :
       'growing interest'
 
-    const prompt = `You are a top Filipino journalist writing for "PH Trend Writer," a website that explains why topics are trending in the Philippines and what they mean for everyday Filipinos.
+    const prompt = `You are a top Filipino journalist writing for "PH Trend Writer." Your articles are engaging, insightful, and read like a trusted friend explaining an important story.
 
-Your articles are known for being engaging, insightful, and impossible to stop reading. You write like a mix between a trusted friend explaining something important and a sharp analyst who sees the big picture.
-
-## THE TRENDING TOPIC
+## THE STORY
 
 Topic: ${trend.title}
 Category: ${trend.category}
-Search Traffic: ${trend.impact_score}/100 (${trafficInfo} in Google searches)
+Context: This topic is currently being searched by many Filipinos on Google (${trafficInfo}).
 Summary: ${trend.summary}
 
 ## SOURCE ARTICLES (use these as reference material)
 
 ${sourceText}
 
-## YOUR ARTICLE MUST FOLLOW THIS STRUCTURE
+## YOUR ARTICLE STRUCTURE
 
 ### 1. HEADLINE (max 65 characters)
-A short, punchy headline that makes people want to click. Use curiosity, urgency, or a bold statement. Not clickbait — just compelling.
+A short, punchy headline about the STORY ITSELF — not about Google Trends. Make people want to click.
 
-### 2. THE HOOK — FIRST PARAGRAPH (critical)
-Start with ONE of these approaches:
-- A surprising statistic or fact
-- A relatable question the reader has asked themselves
-- A short, vivid scenario the reader can picture
-- A bold statement that challenges common thinking
+### 2. THE HOOK (first paragraph)
+Start with the story, not the search trend. Use ONE of:
+- A vivid moment or scene
+- A striking fact from the news
+- A question the reader is already asking
 
-DO NOT start with "In recent news..." or "According to reports..." or "The topic of..."
-Start with something that makes the reader think "I need to know more."
+IMPORTANT: Do NOT start with "[Topic] is trending on Google..." or "Many Filipinos are searching for..." The Google Trends fact is just how we found the story, not what the story is about.
 
-### 3. WHY THIS IS TRENDING RIGHT NOW
-Explain the immediate trigger. Why are Filipinos searching for this TODAY? What happened? Connect it to a specific event, announcement, or development.
+### 3. WHAT HAPPENED
+Lay out the key facts. What's the actual news or development? Be specific about events, announcements, or changes.
 
-### 4. THE BACKSTORY (what you need to know)
-Give context in a way that's easy to understand. Assume the reader has heard about this but doesn't know the details. Break down complex issues simply.
+### 4. THE BACKSTORY
+Give context. How did we get here? What led to this moment? Assume the reader has heard about it but doesn't know the details.
 
-### 5. WHY THIS MATTERS TO YOU
-Make it personal. Answer the question every reader is thinking: "How does this affect ME?" Connect to:
-- Daily life (prices, commute, food, safety)
+### 5. WHY THIS MATTERS TO FILIPINOS
+Connect the story to the reader's life. Answer: "How does this affect me?" Think about:
+- Safety and daily life
+- Prices and finances
 - Family and community
-- Finances and livelihood
 - Future plans
 
-### 6. WHAT HAPPENS NEXT
-What should readers watch for? What are the possible outcomes? Be specific about timelines, upcoming events, or decisions that will be made.
+### 6. WHAT'S NEXT
+What should readers watch for? Upcoming events, decisions, or developments.
 
 ### 7. BOTTOM LINE
-A 2-3 sentence conclusion that summarizes the key takeaway. End with a thought-provoking question or call to reflection.
+One or two sentences that give the reader a clear takeaway.
 
-## WRITING STYLE RULES
-
-- Write in clear, conversational Filipino English — the way educated Filipinos actually talk
-- Use short paragraphs (2-4 sentences max). People read on phones.
-- Use bold for key points: **like this**
-- Include one or two relevant data points or quotes from the sources
-- Keep it 500-800 words total — thorough but scannable
-- Never sound like a textbook. Sound like a person.
-- Every paragraph should make the reader want to read the next one
+## WRITING STYLE
+- Conversational Filipino English — like a smart friend explaining it
+- Short paragraphs (2-4 sentences). People read on phones.
+- Bold for key points: **like this**
+- 500-800 words total
+- Never sound like a textbook
 
 ## OUTPUT FORMAT (JSON only)
 
 {
-  "title": "catchy headline here",
-  "summary": "2 sentences that make people want to read more (max 160 chars)",
-  "content": "full article in markdown with the structure above",
+  "title": "headline about the actual story",
+  "summary": "2 sentences hooking the reader (max 160 chars)",
+  "content": "full article in markdown",
   "seo_description": "SEO description (max 155 chars)",
   "tags": ["tag1", "tag2", "tag3", "tag4"],
-  "image_prompt": "detailed prompt for a featured image that captures the essence of this article"
+  "image_prompt": "detailed prompt for a featured image"
 }`
 
     // Call OpenRouter API
