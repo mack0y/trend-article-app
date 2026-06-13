@@ -185,11 +185,14 @@ trend-article-app/
 - [x] **Major change: Google Trends as primary source** — `fetch-trends` now fetches `https://trends.google.com/trending/rss?geo=PH` for real Philippines trending topics with traffic-based scoring. Also fetches related Google News articles for each trend. GDELT kept as fallback.
 - [x] **Engaging article prompt** — `generate-article` rewritten to produce hook-driven articles: catchy intro, "why this matters to you" section, conversational Filipino English, short paragraphs, 7-section structure
 - [x] Both edge functions re-deployed and verified — trends now show actual Google Trends PH data (earthquake, impeachment trial, etc.)
+- [x] **Type-aware article prompt** — LLM adapts writing style based on trend category: News/Crisis → BBC-style explainer, Sports/Entertainment → narrative recap, Everyday Life → service journalism, General → flexible explainer. CRITICAL RULE: never mention Google Trends in the article.
+- [x] **Featured image prompt generation** — LLM now generates a detailed DALL-E/Midjourney-ready image prompt (subject, setting, mood, lighting, colors, 30-80 words, no text in image)
+- [x] **Image upload via Supabase Storage** — `article-images` bucket created (public), with RLS policies for authenticated admin upload/delete. GenerateArticle page has upload zone with preview and remove button.
+- [x] **Article image display** — ArticleDetail shows hero image at top when `image_url` is set. ArticleCard shows thumbnail on article list.
 
 ## What's Pending (Future Improvements)
 
 - [ ] No tests exist
-- [ ] No article `image_url` handling (only `image_prompt`)
 - [ ] No trend auto-refresh/cron
 - [ ] No search/filter for trends/articles
 - [ ] No pagination
