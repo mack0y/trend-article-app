@@ -200,6 +200,10 @@ Do NOT mention Google Trends, search traffic, or trending data anywhere in the a
 
 ${articleStructure}
 
+## CRITICAL: NO SECTION LABELS IN ARTICLE
+
+The section labels above (like "THE HOOK", "WHAT HAPPENED", "BOTTOM LINE", etc.) are **internal guidelines** for your writing structure only. Do NOT include them as headings in the article. The article should flow naturally from one section to the next without any visible section markers. Readers should see a seamless, engaging article — not a numbered list or labeled sections.
+
 ## WRITING STYLE
 - Conversational Filipino English — like a smart friend explaining it
 - Short paragraphs (2-4 sentences). People read on phones.
