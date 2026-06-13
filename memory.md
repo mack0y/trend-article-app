@@ -189,6 +189,8 @@ trend-article-app/
 - [x] **Featured image prompt generation** — LLM now generates a detailed DALL-E/Midjourney-ready image prompt (subject, setting, mood, lighting, colors, 30-80 words, no text in image)
 - [x] **Image upload via Supabase Storage** — `article-images` bucket created (public), with RLS policies for authenticated admin upload/delete. GenerateArticle page has upload zone with preview and remove button.
 - [x] **Article image display** — ArticleDetail shows hero image at top when `image_url` is set. ArticleCard shows thumbnail on article list.
+- [x] **No section labels in articles** — Added "CRITICAL: NO SECTION LABELS" instruction to LLM prompt. Section labels (The Hook, What Happened, etc.) are internal guidelines only — never visible in published articles.
+- [x] **Test article live** — Manually created test article for "earthquake near me" trend (5.7 Magnitude Quake Rattles Tonga). Content has proper newlines, no section labels, flows naturally. Renders correctly in browser.
 
 ## What's Pending (Future Improvements)
 
