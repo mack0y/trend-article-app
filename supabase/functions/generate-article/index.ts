@@ -57,69 +57,163 @@ serve(async (req) => {
       ?.map((s) => `- ${s.source_name}: ${s.source_url}\n  Snippet: ${s.snippet || 'N/A'}`)
       .join('\n') || 'No sources available.'
 
-    const trafficInfo = trend.impact_score >= 80 ? 'massive surge' :
-      trend.impact_score >= 60 ? 'significant spike' :
-      trend.impact_score >= 40 ? 'notable increase' :
-      'growing interest'
+    // Determine article type and structure based on category
+    const category = trend.category || 'General'
+    const isNewsCrisis = ['Disaster', 'Politics', 'Economy', 'Global', 'Health'].includes(category)
+    const isSportsEntertainment = category === 'Entertainment' || ['mystics', 'warriors', 'timothee', 'chalamet', 'storm', 'valkyries', 'nba', 'wnba', 'game', 'match', 'vs '].some(k => trend.title.toLowerCase().includes(k))
+    const isEverydayLife = ['Food & Agriculture', 'Real Estate', 'Education', 'Crime', 'Business'].includes(category)
 
-    const prompt = `You are a top Filipino journalist writing for "PH Trend Writer." Your articles are engaging, insightful, and read like a trusted friend explaining an important story.
+    let articleStructure = ''
 
-## THE STORY
+    if (isNewsCrisis) {
+      // News/Crisis: BBC-style explainer — context, analysis, what it means
+      articleStructure = `## YOUR ARTICLE — NEWS EXPLAINER STYLE
+
+Write this like a BBC or Vox explainer: authoritative but accessible. The reader heard about this but doesn't fully understand it. You're saving them from reading 5 articles by giving them everything in one clear read.
+
+### 1. HEADLINE (max 65 chars)
+Punchy, about the story itself. Not about Google Trends.
+
+### 2. THE HOOK (1 paragraph)
+Start with the story — a vivid moment, a striking fact, a human angle. Do NOT start with "[topic] is trending" or "Filipinos are searching for..."
+
+### 3. WHAT HAPPENED (2-3 paragraphs)
+The key facts. What's the actual development? Be specific: dates, names, numbers. Quote from sources.
+
+### 4. WHY NOW (1-2 paragraphs)
+What triggered this? Why is this happening today or this week? Give the immediate context.
+
+### 5. THE BIGGER PICTURE (1-2 paragraphs)
+How did we get here? What's the history? What do readers need to understand to make sense of this?
+
+### 6. WHAT THIS MEANS FOR FILIPINOS (1-2 paragraphs)
+Connect to the reader's life. How does this affect:
+- Safety, prices, daily life
+- Family, work, money
+- Future plans
+
+### 7. WHAT'S NEXT (1 paragraph)
+Upcoming events, decisions, or things to watch for.
+
+### 8. BOTTOM LINE (1 paragraph)
+Key takeaway in 1-2 sentences. What should the reader remember?`
+    } else if (isSportsEntertainment) {
+      // Sports/Entertainment: narrative recap — what happened, why it's exciting
+      articleStructure = `## YOUR ARTICLE — SPORTS/ENTERTAINMENT RECAP STYLE
+
+Write this like a sports desk recap or entertainment story. Make the reader feel like they were there. Focus on the moment, the drama, the excitement.
+
+### 1. HEADLINE (max 65 chars)
+Exciting, captures the moment. Not about Google Trends.
+
+### 2. THE HOOK (1 paragraph)
+Start with THE MOMENT — the buzzer-beater, the surprise, the dramatic scene. Drop the reader right into the action. Do NOT start with "[topic] is trending."
+
+### 3. THE STORY (2-3 paragraphs)
+What happened? Lay out the key action, the drama, the turning points. Make it feel like a story, not a report.
+
+### 4. WHY IT MATTERS (1-2 paragraphs)
+Why should Filipinos care? Connect to:
+- Filipino athletes or connections
+- Growing fan base in the Philippines
+- Cultural significance
+- What this says about the sport/entertainment industry
+
+### 5. WHAT'S NEXT (1 paragraph)
+Upcoming games, releases, or events to watch for.
+
+### 6. BOTTOM LINE (1 paragraph)
+One sentence that captures why this moment matters.`
+    } else if (isEverydayLife) {
+      // Everyday Life: service journalism — what you need to know and do
+      articleStructure = `## YOUR ARTICLE — SERVICE JOURNALISM STYLE
+
+Write this like a practical guide. The reader needs to know what changed and what to do about it. Be clear, direct, and helpful.
+
+### 1. HEADLINE (max 65 chars)
+Clear and practical. Tells the reader what they need to know. Not about Google Trends.
+
+### 2. THE HOOK (1 paragraph)
+Start with the reader's concern — higher prices, new rules, something that affects their daily life. Do NOT start with "[topic] is trending."
+
+### 3. WHAT CHANGED (1-2 paragraphs)
+What's new? Be specific: new prices, new laws, new requirements. Give numbers and dates.
+
+### 4. HOW THIS AFFECTS YOU (2-3 paragraphs)
+Break it down by who it affects:
+- Families
+- Workers
+- Students
+- Business owners
+
+### 5. WHAT YOU CAN DO (1-2 paragraphs)
+Practical advice. Steps to take, things to watch out for, resources to use.
+
+### 6. WHAT'S NEXT (1 paragraph)
+What to expect in the coming days or weeks.
+
+### 7. BOTTOM LINE (1 paragraph)
+The one thing the reader should remember and act on.`
+    } else {
+      // General: flexible explainer
+      articleStructure = `## YOUR ARTICLE — ENGAGING EXPLAINER STYLE
+
+Write this like a smart friend explaining something interesting. Make it engaging and easy to read.
+
+### 1. HEADLINE (max 65 chars)
+Makes people want to click. Not about Google Trends.
+
+### 2. THE HOOK (1 paragraph)
+Start with an interesting angle — a surprising fact, a relatable question, a vivid image. Do NOT start with "[topic] is trending."
+
+### 3. WHAT'S THIS ABOUT (2-3 paragraphs)
+The key facts. What's happening? Who's involved? Why should anyone care?
+
+### 4. THE CONTEXT (1-2 paragraphs)
+What led to this? Give enough background to understand.
+
+### 5. WHY FILIPINOS ARE TALKING ABOUT THIS (1-2 paragraphs)
+Connect to the Philippines specifically. What's the local angle?
+
+### 6. WHAT'S NEXT (1 paragraph)
+What to watch for.
+
+### 7. BOTTOM LINE (1 paragraph)
+Key takeaway. Keep it short.`
+    }
+
+    const prompt = `You are a top Filipino journalist writing for PH Trend Writer. Your articles are engaging, insightful, and read like a trusted friend explaining something important.
+
+## MATERIAL TO WORK WITH
 
 Topic: ${trend.title}
-Category: ${trend.category}
-Context: This topic is currently being searched by many Filipinos on Google (${trafficInfo}).
+Category: ${category}
 Summary: ${trend.summary}
 
-## SOURCE ARTICLES (use these as reference material)
+## SOURCE ARTICLES (use for facts and quotes)
 
 ${sourceText}
 
-## YOUR ARTICLE STRUCTURE
+## CRITICAL RULE
 
-### 1. HEADLINE (max 65 characters)
-A short, punchy headline about the STORY ITSELF — not about Google Trends. Make people want to click.
+Do NOT mention Google Trends, search traffic, or trending data anywhere in the article. The topic came from search trends, but the article is about the story itself. Readers should never know this started from a search trend.
 
-### 2. THE HOOK (first paragraph)
-Start with the story, not the search trend. Use ONE of:
-- A vivid moment or scene
-- A striking fact from the news
-- A question the reader is already asking
-
-IMPORTANT: Do NOT start with "[Topic] is trending on Google..." or "Many Filipinos are searching for..." The Google Trends fact is just how we found the story, not what the story is about.
-
-### 3. WHAT HAPPENED
-Lay out the key facts. What's the actual news or development? Be specific about events, announcements, or changes.
-
-### 4. THE BACKSTORY
-Give context. How did we get here? What led to this moment? Assume the reader has heard about it but doesn't know the details.
-
-### 5. WHY THIS MATTERS TO FILIPINOS
-Connect the story to the reader's life. Answer: "How does this affect me?" Think about:
-- Safety and daily life
-- Prices and finances
-- Family and community
-- Future plans
-
-### 6. WHAT'S NEXT
-What should readers watch for? Upcoming events, decisions, or developments.
-
-### 7. BOTTOM LINE
-One or two sentences that give the reader a clear takeaway.
+${articleStructure}
 
 ## WRITING STYLE
 - Conversational Filipino English — like a smart friend explaining it
 - Short paragraphs (2-4 sentences). People read on phones.
 - Bold for key points: **like this**
-- 500-800 words total
+- 400-700 words total
 - Never sound like a textbook
+- Every paragraph makes the reader want to read the next one
 
-## OUTPUT FORMAT (JSON only)
+## OUTPUT FORMAT (JSON only, no markdown fences)
 
 {
   "title": "headline about the actual story",
   "summary": "2 sentences hooking the reader (max 160 chars)",
-  "content": "full article in markdown",
+  "content": "full article in markdown following the structure above",
   "seo_description": "SEO description (max 155 chars)",
   "tags": ["tag1", "tag2", "tag3", "tag4"],
   "image_prompt": "detailed prompt for a featured image"
