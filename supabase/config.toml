@@ -1,0 +1,7 @@
+[functions.fetch-trends]
+enabled = true
+verify_jwt = false
+
+[functions.generate-article]
+enabled = true
+verify_jwt = false
